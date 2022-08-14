@@ -1,18 +1,23 @@
-import java.util.Arrays;
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
 
 public class Main {
+    final static int COUNT_TP = 4;
+
     public static void main(String[] args) throws ExecutionException, InterruptedException {
         Callable<Integer> myCallable = new MyCallable();
 
         final ExecutorService threadPool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
-        final Future<Integer> task1 = threadPool.submit(myCallable);
-        final Future<Integer> task2 = threadPool.submit(myCallable);
-        final Future<Integer> task3 = threadPool.submit(myCallable);
-        final Future<Integer> task4 = threadPool.submit(myCallable);
-        final Integer res = task1.get()+task2.get()+task3.get()+task4.get();
+        List<Future<Integer>> tasks = new ArrayList<>();
+        for (int i = 0; i < COUNT_TP; i++) {
+            tasks.add(threadPool.submit(myCallable));
+        }
+
+        Integer res = 0;
+        for (Future<Integer> task : tasks) {
+            res += task.get();
+        }
         System.out.printf("Выведено в консоль %d сообщений с содержанием \"Всем привет\".\n", res);
 
         //Используем invokeAny
